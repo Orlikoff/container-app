@@ -1,0 +1,166 @@
+// CREATING DB
+CREATE DATABASE cargo_manager
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+// CREATING user_data TABLE
+CREATE TABLE user_data
+(
+    Id SERIAL PRIMARY KEY,
+    user_name CHARACTER VARYING(30) NOT NULL,
+    user_surname CHARACTER VARYING(30) NOT NULL,
+    user_email CHARACTER VARYING(50) UNIQUE NOT NULL,
+    user_password CHARACTER VARYING(30) NOT NULL
+);
+
+// CREATING marine_worker TABLE
+CREATE TABLE marine_worker
+(
+    Id SERIAL PRIMARY KEY,
+    company_name CHARACTER VARYING(30) NOT NULL,
+    country_of_origin CHARACTER VARYING(30) NOT NULL
+);
+
+// CREATING app_user TABLE
+CREATE TABLE app_user
+(
+    Id SERIAL PRIMARY KEY,
+    user_data_id INTEGER NOT NULL UNIQUE REFERENCES user_data (Id) ON DELETE CASCADE,
+    marine_worker_id INTEGER UNIQUE REFERENCES marine_worker (Id) ON DELETE SET DEFAULT,
+	user_role CHARACTER VARYING(10)
+);
+
+// CREATING journal TABLE
+CREATE TABLE journal
+(
+    Id SERIAL PRIMARY KEY,
+    marine_worker_id INTEGER NOT NULL UNIQUE REFERENCES marine_worker (Id) ON DELETE CASCADE,
+	last_update_datetime TIMESTAMP
+);
+
+// CREATING log_action TABLE
+CREATE TABLE log_action
+(
+    Id SERIAL PRIMARY KEY,
+    journal_id INTEGER NOT NULL REFERENCES journal (Id) ON DELETE CASCADE,
+	edited_id INTEGER NOT NULL,
+	action_description CHARACTER VARYING(100) NOT NULL,
+	datetime TIMESTAMP NOT NULL
+);
+
+// CREATING route TABLE
+CREATE TABLE route
+(
+    Id SERIAL PRIMARY KEY,
+    marine_worker_id INTEGER NOT NULL REFERENCES marine_worker (Id) ON DELETE CASCADE,
+	shipment_company CHARACTER VARYING(50) NOT NULL,
+	route_vessel_code CHARACTER VARYING(30) NOT NULL
+);
+
+// CREATING vessel TABLE
+CREATE TABLE vessel
+(
+    Id SERIAL PRIMARY KEY,
+	route_id INTEGER UNIQUE REFERENCES route (Id) ON DELETE SET DEFAULT,
+    marine_worker_id INTEGER NOT NULL REFERENCES marine_worker (Id) ON DELETE CASCADE,
+	vessel_verbose_name CHARACTER VARYING(30) NOT NULL,
+	country_of_origin CHARACTER VARYING(30) NOT NULL,
+	max_load_capacity REAL NOT NULL
+);
+
+// CREATING vessel_captain TABLE
+CREATE TABLE vessel_captain
+(
+    Id SERIAL PRIMARY KEY,
+	vessel_id INTEGER UNIQUE REFERENCES vessel (Id) ON DELETE SET DEFAULT,
+    captain_name CHARACTER VARYING(30) NOT NULL,
+	captain_surname CHARACTER VARYING(30) NOT NULL,
+	length_of_service INT NOT NULL,
+	marine_rank CHARACTER VARYING(30) NOT NULL
+);
+
+// CREATING crew TABLE
+CREATE TABLE crew
+(
+    Id SERIAL PRIMARY KEY,
+	vessel_id INTEGER UNIQUE REFERENCES vessel (Id) ON DELETE SET DEFAULT,
+	crew_code CHARACTER VARYING(30) NOT NULL,
+	crew_size INT NOT NULL CHECK(crew_size > 0)
+);
+
+// CREATING crew_member TABLE
+CREATE TABLE crew_member
+(
+    Id SERIAL PRIMARY KEY,
+	crew_id INTEGER NOT NULL REFERENCES crew (Id) ON DELETE CASCADE,
+	member_name CHARACTER VARYING(30) NOT NULL,
+	member_surname CHARACTER VARYING(30) NOT NULL,
+	nationality CHARACTER VARYING(30) NOT NULL,
+	marine_rank CHARACTER VARYING(30) NOT NULL,
+	age INT NOT NULL CHECK(age > 0)
+);
+
+// CREATING port TABLE
+CREATE TABLE port
+(
+    Id SERIAL PRIMARY KEY,
+	marine_worker_id INTEGER NOT NULL REFERENCES marine_worker (Id) ON DELETE CASCADE,
+	port_name CHARACTER VARYING(30) NOT NULL,
+	port_unified_code CHARACTER VARYING(30) NOT NULL,
+	port_country CHARACTER VARYING(30) NOT NULL,
+	max_containers_capacity INT NOT NULL CHECK(max_containers_capacity > 0)
+);
+
+// CREATING port_route TABLE
+CREATE TABLE port_route
+(
+    Id SERIAL PRIMARY KEY,
+	port_id INTEGER NOT NULL REFERENCES port (Id) ON DELETE CASCADE,
+	route_id INTEGER NOT NULL REFERENCES route (Id) ON DELETE CASCADE
+);
+
+// CREATING container TABLE
+CREATE TABLE container
+(
+    Id SERIAL PRIMARY KEY,
+	dispatch_port_id INTEGER NOT NULL REFERENCES port (Id) ON DELETE CASCADE,
+	destination_port_id INTEGER CHECK(destination_port_id != dispatch_port_id) REFERENCES port (Id) ON DELETE SET DEFAULT,
+	vessel_id INTEGER REFERENCES vessel (Id) ON DELETE SET DEFAULT,
+	container_code CHARACTER VARYING(30) NOT NULL
+);
+
+// CREATING shipment TABLE
+CREATE TABLE shipment
+(
+    Id SERIAL PRIMARY KEY,
+	container_id INTEGER NOT NULL REFERENCES container (Id) ON DELETE CASCADE,
+	filling_type CHARACTER VARYING(30) NOT NULL,
+	mass REAL NOT NULL
+);
+
+// Creating trigger for log_action
+CREATE OR REPLACE FUNCTION log_action_insert_trigger_fnc()
+  RETURNS trigger AS
+$$
+BEGIN
+
+UPDATE journal
+SET last_update_datetime = NEW.datetime
+WHERE id = NEW.journal_id;
+
+RETURN NEW;
+END;
+$$
+LANGUAGE 'plpgsql';
+
+CREATE TRIGGER log_action_insert
+AFTER INSERT
+ON log_action
+FOR EACH ROW
+EXECUTE PROCEDURE log_action_insert_trigger_fnc();
+
+ALTER TABLE log_action
+ENABLE TRIGGER ALL;

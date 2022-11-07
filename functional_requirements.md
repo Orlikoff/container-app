@@ -1,6 +1,6 @@
 # Functional requirements
 
-- ## UESR AUTHENTICATION AND REGISTRATION
+- ## USER AUTHENTICATION AND REGISTRATION
   - user can sign up in the app
   - user can choose the role, while signing up
   - user can delete account and all entities are to be deleted in cascade mode

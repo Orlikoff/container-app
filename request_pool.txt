@@ -1,0 +1,47 @@
+// Add user_data
+INSERT INTO user_data(user_name, user_surname, user_email, user_password) 
+VALUES (<user_name>, <user_surname>, <user_email>, <user_pass>);
+
+// Add simple user
+INSERT INTO app_user(user_data_id, user_role) 
+VALUES (<user_data_id>, 'user);
+
+// Add worker user
+INSERT INTO app_user(user_data_id, marine_worker_id, user_role) 
+VALUES (<user_data_id>, <marine_worker_id>, 'worker');
+
+// Add marine worker
+INSERT INTO marine_worker(company_name, country_of_origin) 
+VALUES (<company_name>, <country_of_origin>);
+
+// Add journal
+INSERT INTO journal(marine_worker_id, last_update_datetime?) 
+VALUES (<marine_worker_id>, <last_update_datetime?>);
+
+// Add log_action
+INSERT INTO log_action(journal_id, edited_id, action_description, datetime)
+VALUES (<journal_id>, <edited_id>, <action_description>, NOW());
+
+// Add route
+INSERT INTO route(marine_worker_id, shipment_company, route_vessel_code)
+VALUES (<marine_worker_id>, <shipment_company>, <route_vessel_code>);
+
+// Add port
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (<marine_worker_id>, <port_name>, <port_unified_code>, <port_country>, <max_containers_capacity>);
+
+// Add port_route
+INSERT INTO port_route(port_id, route_id)
+VALUES (<port_id>, <route_id>);
+
+// Add vessel
+INSERT INTO vessel(route_id?, marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (<route_id?>, <marine_worker_id>, <vessel_verbose_name>, <country_of_origin>, <max_load_capacity>);
+
+// Add vessel_captain
+INSERT INTO vessel_captain(vessel_id?, captain_name, captain_surname, length_of_service, marine_rank)
+VALUES (<vessel_id?>, <captain_name>, <captain_surname>, <length_of_service>, <marine_rank>);
+
+// Add crew
+INSERT INTO crew(vessel_id?, crew_code, crew_size)
+VALUES (<vessel_id?>, <crew_code>, <crew_size>);
