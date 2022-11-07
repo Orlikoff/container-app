@@ -1,21 +1,21 @@
 // Add user_data
-INSERT INTO user_data(user_name, user_surname, user_email, user_password) 
+INSERT INTO user_data(user_name, user_surname, user_email, user_password)
 VALUES (<user_name>, <user_surname>, <user_email>, <user_pass>);
 
 // Add simple user
-INSERT INTO app_user(user_data_id, user_role) 
+INSERT INTO app_user(user_data_id, user_role)
 VALUES (<user_data_id>, 'user);
 
 // Add worker user
-INSERT INTO app_user(user_data_id, marine_worker_id, user_role) 
+INSERT INTO app_user(user_data_id, marine_worker_id, user_role)
 VALUES (<user_data_id>, <marine_worker_id>, 'worker');
 
 // Add marine worker
-INSERT INTO marine_worker(company_name, country_of_origin) 
+INSERT INTO marine_worker(company_name, country_of_origin)
 VALUES (<company_name>, <country_of_origin>);
 
 // Add journal
-INSERT INTO journal(marine_worker_id, last_update_datetime?) 
+INSERT INTO journal(marine_worker_id, last_update_datetime?)
 VALUES (<marine_worker_id>, <last_update_datetime?>);
 
 // Add log_action
@@ -45,3 +45,15 @@ VALUES (<vessel_id?>, <captain_name>, <captain_surname>, <length_of_service>, <m
 // Add crew
 INSERT INTO crew(vessel_id?, crew_code, crew_size)
 VALUES (<vessel_id?>, <crew_code>, <crew_size>);
+
+// Add crew_member
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (<crew_id>, <member_name>, <member_surname>, <nationality>, <marine_rank>, <age>);
+
+// Add container
+INSERT INTO container(dispatch_port_id, destination_port_id, vessel_id, container_code)
+VALUES (<dispatch_port_id>, <destination_port_id?>, <vessel_id?>, <container_code>);
+
+// Add shipment
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (<container_id>, <filling_type>, <mass>);
