@@ -19,4 +19,13 @@ WITH tab AS (
 )
 SELECT container_id, sum(mass) FROM tab GROUP BY container_id
 
-
+// select containers in which there is at least one package that has mass greater than <mass>
+SELECT id
+FROM container cont
+WHERE EXISTS(
+	SELECT 1
+	FROM shipment ship
+	WHERE ship.container_id=cont.id
+	AND ship.mass > <mass>
+)
+ORDER BY id
