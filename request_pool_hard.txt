@@ -1,0 +1,22 @@
+// select users with name that starts with <character> and email from <post_server>
+SELECT * FROM user_data WHERE user_name SIMILAR TO '[<character>]%' AND user_email SIMILAR TO '%@<post_server>'
+
+// select containers with code that starts with <code_part> and filling type of <fill_type>
+WITH container_specified AS (
+	SELECT * FROM container
+	WHERE container_code SIMILAR TO '<code_part>%'
+)
+SELECT * FROM shipment WHERE id IN (SELECT id FROM container_specified) AND filling_type='<fill_type>'
+
+// join containers with their shipments
+SELECT * from shipment ship LEFT OUTER JOIN container cont ON (ship.container_id=cont.id)
+ORDER BY ship.container_id DESC
+
+// get mass of all shipments in container
+WITH tab AS (
+	SELECT * from shipment ship LEFT OUTER JOIN container cont ON (ship.container_id=cont.id)
+	ORDER BY ship.container_id DESC
+)
+SELECT container_id, sum(mass) FROM tab GROUP BY container_id
+
+

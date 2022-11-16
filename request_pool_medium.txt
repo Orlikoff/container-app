@@ -1,0 +1,8 @@
+// select users with email starting with <character>
+SELECT * FROM user_data WHERE user_email SIMILAR TO '[<character>]%'
+
+// select containers with code starting with <characters>
+SELECT * FROM container WHERE container_code SIMILAR TO '<characters>%'
+
+// select all workers from table
+SELECT * FROM app_user WHERE user_role SIMILAR TO 'worker'
