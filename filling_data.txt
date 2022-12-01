@@ -1,0 +1,177 @@
+// user data
+INSERT INTO user_data(user_name, user_surname, user_email, user_password)
+VALUES ('Peter', 'Fool, 'hate_bd@mail.com', 'dasugdusagd);
+
+INSERT INTO user_data(user_name, user_surname, user_email, user_password)
+VALUES ('Josh', 'Hola', 'udada@yahoo.com', 'fadasadsadasdas');
+
+INSERT INTO user_data(user_name, user_surname, user_email, user_password)
+VALUES ('JAJA', 'GUTENKS', 'fksopfijd@ggg.com', 'fdsfdsfds');
+
+INSERT INTO user_data(user_name, user_surname, user_email, user_password)
+VALUES ('Fof', 'Dssasa', 'reoofldd@fdfds.ckm', 'dasdDSADASW');
+
+INSERT INTO user_data(user_name, user_surname, user_email, user_password)
+VALUES ('foDF', 'dddddddS', 'dsadafavav@dadas.fsff', 'faedefvr');
+
+// app user
+INSERT INTO app_user(user_data_id, user_role)
+VALUES (0, 'user');
+
+INSERT INTO app_user(user_data_id, user_role)
+VALUES (1, 'user');
+
+INSERT INTO app_user(user_data_id, user_role)
+VALUES (2, 'user');
+
+// marine worker
+INSERT INTO marine_worker(company_name, country_of_origin)
+VALUES ('CHacha', 'Romania');
+
+INSERT INTO marine_worker(company_name, country_of_origin)
+VALUES ('Ya medved', 'Russia');
+
+// worker register
+INSERT INTO app_user(user_data_id, marine_worker_id, user_role)
+VALUES (3, 0, 'worker');
+
+INSERT INTO app_user(user_data_id, marine_worker_id, user_role)
+VALUES (4, 1, 'worker');
+
+// journal register
+INSERT INTO journal(marine_worker_id)
+VALUES (0);
+
+INSERT INTO journal(marine_worker_id)
+VALUES (1);
+
+// log action
+INSERT INTO log_action(journal_id, edited_id, action_description, datetime)
+VALUES (0, 0, 'Testy', NOW());
+
+INSERT INTO log_action(journal_id, edited_id, action_description, datetime)
+VALUES (1, 1, 'Some action', NOW());
+
+// route
+INSERT INTO route(marine_worker_id, shipment_company, route_vessel_code)
+VALUES (0, 'Doodle jump', 'FOOER44');
+
+INSERT INTO route(marine_worker_id, shipment_company, route_vessel_code)
+VALUES (1, 'Ggokfd', 'HF54GH');
+
+// port
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (0, 'Test port', 'BABABIBA', 'GHY90J', 'Poland', 450);
+
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (0, 'Not test port', 'Goofled', 'KDES12L', 'China', 230);
+
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (1, 'Funny port', 'Yafoola', 'FGR321', 'Hungary', 3000);
+
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (1, 'Google port', 'Jinjer', 'DEOP4PP', 'Kenya', 2300);
+
+// vessels
+INSERT INTO vessel(marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (0, 'Fooli', 'Ephiopia', '324');
+
+INSERT INTO vessel(marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (0, 'GGG', 'Latvia', '1234');
+
+INSERT INTO vessel(marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (1, 'Kolish', 'Litva', '500');
+
+INSERT INTO vessel(marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (1, 'Dase', 'Ukraine', '2311');
+
+// crew
+INSERT INTO crew(crew_code, crew_size)
+VALUES ('UFYFY5', 34);
+
+INSERT INTO crew(crew_code, crew_size)
+VALUES ('DF3KK', 20);
+
+INSERT INTO crew(crew_code, crew_size)
+VALUES ('FSA44', 10);
+
+INSERT INTO crew(crew_code, crew_size)
+VALUES ('LPO55R', 5);
+
+// crew member
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (0, 'HDHD', 'HSHDS', 'GRISU', 'Gool', 12);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (0, 'dasd', 'fushfs', 'GRISU', 'Gool', 67);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (0, 'fgsfs', 'HSHDS', 'frewfe', 'okokokok', 90);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (0, 'GYFUGD', 'SSSSS', 'vbhblif', 'sqewq', 111);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (0, 'dasd', 'fushfs', 'GRISU', 'Gool', 67);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (0, 'fgsfs', 'HSHDS', 'frewfe', 'okokokok', 90);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (0, 'GYFUGD', 'SSSSS', 'vbhblif', 'sqewq', 111);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (1, 'dasd', 'fushfs', 'GRISU', 'Gool', 67);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (1, 'fgsfs', 'HSHDS', 'frewfe', 'okokokok', 90);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (1, 'GYFUGD', 'SSSSS', 'vbhblif', 'sqewq', 111);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (2, 'dasd', 'fushfs', 'GRISU', 'Gool', 67);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (2, 'fgsfs', 'HSHDS', 'frewfe', 'okokokok', 90);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (2, 'GYFUGD', 'SSSSS', 'vbhblif', 'sqewq', 111);
+
+// containers
+INSERT INTO container(dispatch_port_id, destination_port_id, vessel_id, container_code)
+VALUES (0, 1, 0, 'GFE4FF');
+
+INSERT INTO container(dispatch_port_id, destination_port_id, container_code)
+VALUES (1, 0, 'YFHEF5');
+
+INSERT INTO container(dispatch_port_id, container_code)
+VALUES (0, 'GFE4FF');
+
+// shipments
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (0, 'Flugg', 34.45);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (0, 'Goflfd', 424.333);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (0, 'Dfdafsfd', 321.2);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (1, 'Fdfsa', 5.5);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (1, 'Lodfsaop', 121.90);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (1, 'Def', 32.2);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (2, 'Wweaas', 2121.7);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (2, 'OIifds', 685.4);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (2, 'Kfdfdlk', 54.4);

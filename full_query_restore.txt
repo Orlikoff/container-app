@@ -1,0 +1,315 @@
+CREATE TABLE user_data
+(
+    Id SERIAL PRIMARY KEY,
+    user_name CHARACTER VARYING(30) NOT NULL,
+    user_surname CHARACTER VARYING(30) NOT NULL,
+    user_email CHARACTER VARYING(50) UNIQUE NOT NULL,
+    user_password CHARACTER VARYING(30) NOT NULL
+);
+
+CREATE TABLE marine_worker
+(
+    Id SERIAL PRIMARY KEY,
+    company_name CHARACTER VARYING(30) NOT NULL,
+    country_of_origin CHARACTER VARYING(30) NOT NULL
+);
+
+CREATE TABLE app_user
+(
+    Id SERIAL PRIMARY KEY,
+    user_data_id INTEGER NOT NULL UNIQUE REFERENCES user_data (Id) ON DELETE CASCADE,
+    marine_worker_id INTEGER UNIQUE REFERENCES marine_worker (Id) ON DELETE SET DEFAULT,
+	user_role CHARACTER VARYING(10)
+);
+
+CREATE TABLE journal
+(
+    Id SERIAL PRIMARY KEY,
+    marine_worker_id INTEGER NOT NULL UNIQUE REFERENCES marine_worker (Id) ON DELETE CASCADE,
+	last_update_datetime TIMESTAMP
+);
+
+CREATE TABLE log_action
+(
+    Id SERIAL PRIMARY KEY,
+    journal_id INTEGER NOT NULL REFERENCES journal (Id) ON DELETE CASCADE,
+	edited_id INTEGER NOT NULL,
+	action_description CHARACTER VARYING(100) NOT NULL,
+	datetime TIMESTAMP NOT NULL
+);
+
+CREATE TABLE route
+(
+    Id SERIAL PRIMARY KEY,
+    marine_worker_id INTEGER NOT NULL REFERENCES marine_worker (Id) ON DELETE CASCADE,
+	shipment_company CHARACTER VARYING(50) NOT NULL,
+	route_vessel_code CHARACTER VARYING(30) NOT NULL
+);
+
+CREATE TABLE vessel
+(
+    Id SERIAL PRIMARY KEY,
+	route_id INTEGER UNIQUE REFERENCES route (Id) ON DELETE SET DEFAULT,
+    marine_worker_id INTEGER NOT NULL REFERENCES marine_worker (Id) ON DELETE CASCADE,
+	vessel_verbose_name CHARACTER VARYING(30) NOT NULL,
+	country_of_origin CHARACTER VARYING(30) NOT NULL,
+	max_load_capacity REAL NOT NULL
+);
+
+CREATE TABLE vessel_captain
+(
+    Id SERIAL PRIMARY KEY,
+	vessel_id INTEGER UNIQUE REFERENCES vessel (Id) ON DELETE SET DEFAULT,
+    captain_name CHARACTER VARYING(30) NOT NULL,
+	captain_surname CHARACTER VARYING(30) NOT NULL,
+	length_of_service INT NOT NULL,
+	marine_rank CHARACTER VARYING(30) NOT NULL
+);
+
+CREATE TABLE crew
+(
+    Id SERIAL PRIMARY KEY,
+	vessel_id INTEGER UNIQUE REFERENCES vessel (Id) ON DELETE SET DEFAULT,
+	crew_code CHARACTER VARYING(30) NOT NULL,
+	crew_size INT NOT NULL CHECK(crew_size > 0)
+);
+
+CREATE TABLE crew_member
+(
+    Id SERIAL PRIMARY KEY,
+	crew_id INTEGER NOT NULL REFERENCES crew (Id) ON DELETE CASCADE,
+	member_name CHARACTER VARYING(30) NOT NULL,
+	member_surname CHARACTER VARYING(30) NOT NULL,
+	nationality CHARACTER VARYING(30) NOT NULL,
+	marine_rank CHARACTER VARYING(30) NOT NULL,
+	age INT NOT NULL CHECK(age > 0)
+);
+
+CREATE TABLE port
+(
+    Id SERIAL PRIMARY KEY,
+	marine_worker_id INTEGER NOT NULL REFERENCES marine_worker (Id) ON DELETE CASCADE,
+	port_name CHARACTER VARYING(30) NOT NULL,
+	port_unified_code CHARACTER VARYING(30) NOT NULL,
+	port_country CHARACTER VARYING(30) NOT NULL,
+	max_containers_capacity INT NOT NULL CHECK(max_containers_capacity > 0)
+);
+
+CREATE TABLE port_route
+(
+    Id SERIAL PRIMARY KEY,
+	port_id INTEGER NOT NULL REFERENCES port (Id) ON DELETE CASCADE,
+	route_id INTEGER NOT NULL REFERENCES route (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE container
+(
+    Id SERIAL PRIMARY KEY,
+	dispatch_port_id INTEGER NOT NULL REFERENCES port (Id) ON DELETE CASCADE,
+	destination_port_id INTEGER CHECK(destination_port_id != dispatch_port_id) REFERENCES port (Id) ON DELETE SET DEFAULT,
+	vessel_id INTEGER REFERENCES vessel (Id) ON DELETE SET DEFAULT,
+	container_code CHARACTER VARYING(30) NOT NULL
+);
+
+CREATE TABLE shipment
+(
+    Id SERIAL PRIMARY KEY,
+	container_id INTEGER NOT NULL REFERENCES container (Id) ON DELETE CASCADE,
+	filling_type CHARACTER VARYING(30) NOT NULL,
+	mass REAL NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION log_action_insert_trigger_fnc()
+  RETURNS trigger AS
+$$
+BEGIN
+
+UPDATE journal
+SET last_update_datetime = NEW.datetime
+WHERE id = NEW.journal_id;
+
+RETURN NEW;
+END;
+$$
+LANGUAGE 'plpgsql';
+
+CREATE TRIGGER log_action_insert
+AFTER INSERT
+ON log_action
+FOR EACH ROW
+EXECUTE PROCEDURE log_action_insert_trigger_fnc();
+
+ALTER TABLE log_action
+ENABLE TRIGGER ALL;
+
+
+INSERT INTO user_data (user_name, user_surname, user_email, user_password)
+VALUES ('Peter', 'Tempy', 'babababa@udasda.com', 'dfddsadasdsa');
+
+INSERT INTO user_data (user_name, user_surname, user_email, user_password)
+VALUES ('Gosha', 'Tfgmpy', 'dasd6534sadad@udasda.com', 'dfdsdadsa');
+
+INSERT INTO user_data (user_name, user_surname, user_email, user_password)
+VALUES ('Foofl', 'Doodlwe', 'dasdsss34adas@udasda.com', 'ddsdssd5fdsa');
+
+INSERT INTO user_data (user_name, user_surname, user_email, user_password)
+VALUES ('GAGA', 'dauaua', 'dfsffddf432da@udasda.com', 'dfdsdsadsadsaa');
+
+
+INSERT INTO app_user (user_data_id, user_role)
+VALUES (1, 'user');
+
+INSERT INTO app_user (user_data_id, user_role)
+VALUES (2, 'user');
+
+
+INSERT INTO marine_worker (company_name, country_of_origin)
+VALUES ('CHacha', 'Romania');
+
+INSERT INTO marine_worker (company_name, country_of_origin)
+VALUES ('Ya medved', 'Russia');
+
+
+INSERT INTO app_user(user_data_id, marine_worker_id, user_role)
+VALUES (3, 1, 'worker');
+
+INSERT INTO app_user(user_data_id, marine_worker_id, user_role)
+VALUES (4, 2, 'worker');
+
+
+INSERT INTO journal(marine_worker_id)
+VALUES (1);
+
+INSERT INTO journal(marine_worker_id)
+VALUES (2);
+
+
+INSERT INTO log_action(journal_id, edited_id, action_description, datetime)
+VALUES (1, 1, 'Testy', NOW());
+
+INSERT INTO log_action(journal_id, edited_id, action_description, datetime)
+VALUES (2, 2, 'Some action', NOW());
+
+
+INSERT INTO route(marine_worker_id, shipment_company, route_vessel_code)
+VALUES (1, 'Doodle jump', 'FOOER44');
+
+INSERT INTO route(marine_worker_id, shipment_company, route_vessel_code)
+VALUES (2, 'Ggokfd', 'HF54GH');
+
+
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (1, 'Test port', 'GHY90J', 'Poland', 450);
+
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (1, 'Not test port', 'KDES12L', 'China', 230);
+
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (2, 'Funny port', 'FGR321', 'Hungary', 3000);
+
+INSERT INTO port(marine_worker_id, port_name, port_unified_code, port_country, max_containers_capacity)
+VALUES (2, 'Google port', 'DEOP4PP', 'Kenya', 2300);
+
+
+INSERT INTO vessel(marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (1, 'Fooli', 'Ephiopia', '324');
+
+INSERT INTO vessel(marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (1, 'GGG', 'Latvia', '1234');
+
+INSERT INTO vessel(marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (2, 'Kolish', 'Litva', '500');
+
+INSERT INTO vessel(marine_worker_id, vessel_verbose_name, country_of_origin, max_load_capacity)
+VALUES (2, 'Dase', 'Ukraine', '2311');
+
+
+INSERT INTO crew(crew_code, crew_size)
+VALUES ('UFYFY5', 34);
+
+INSERT INTO crew(crew_code, crew_size)
+VALUES ('DF3KK', 20);
+
+INSERT INTO crew(crew_code, crew_size)
+VALUES ('FSA44', 10);
+
+INSERT INTO crew(crew_code, crew_size)
+VALUES ('LPO55R', 5);
+
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (3, 'HDHD', 'HSHDS', 'GRISU', 'Gool', 12);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (3, 'dasd', 'fushfs', 'GRISU', 'Gool', 67);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (3, 'fgsfs', 'HSHDS', 'frewfe', 'okokokok', 90);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (3, 'GYFUGD', 'SSSSS', 'vbhblif', 'sqewq', 111);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (3, 'dasd', 'fushfs', 'GRISU', 'Gool', 67);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (3, 'fgsfs', 'HSHDS', 'frewfe', 'okokokok', 90);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (3, 'GYFUGD', 'SSSSS', 'vbhblif', 'sqewq', 111);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (1, 'dasd', 'fushfs', 'GRISU', 'Gool', 67);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (1, 'fgsfs', 'HSHDS', 'frewfe', 'okokokok', 90);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (1, 'GYFUGD', 'SSSSS', 'vbhblif', 'sqewq', 111);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (2, 'dasd', 'fushfs', 'GRISU', 'Gool', 67);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (2, 'fgsfs', 'HSHDS', 'frewfe', 'okokokok', 90);
+
+INSERT INTO crew_member(crew_id, member_name, member_surname, nationality, marine_rank, age)
+VALUES (2, 'GYFUGD', 'SSSSS', 'vbhblif', 'sqewq', 111);
+
+
+INSERT INTO container(dispatch_port_id, destination_port_id, vessel_id, container_code)
+VALUES (1, 2, 1, 'GFE4FF');
+
+INSERT INTO container(dispatch_port_id, destination_port_id, container_code)
+VALUES (2, 1, 'YFHEF5');
+
+INSERT INTO container(dispatch_port_id, container_code)
+VALUES (1, 'GFE4FF');
+
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (3, 'Flugg', 34.45);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (3, 'Goflfd', 424.333);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (3, 'Dfdafsfd', 321.2);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (1, 'Fdfsa', 5.5);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (1, 'Lodfsaop', 121.90);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (1, 'Def', 32.2);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (2, 'Wweaas', 2121.7);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (2, 'OIifds', 685.4);
+
+INSERT INTO shipment(container_id, filling_type, mass)
+VALUES (2, 'Kfdfdlk', 54.4);
