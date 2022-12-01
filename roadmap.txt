@@ -140,27 +140,3 @@ CREATE TABLE shipment
 	filling_type CHARACTER VARYING(30) NOT NULL,
 	mass REAL NOT NULL
 );
-
-// Creating trigger for log_action
-CREATE OR REPLACE FUNCTION log_action_insert_trigger_fnc()
-  RETURNS trigger AS
-$$
-BEGIN
-
-UPDATE journal
-SET last_update_datetime = NEW.datetime
-WHERE id = NEW.journal_id;
-
-RETURN NEW;
-END;
-$$
-LANGUAGE 'plpgsql';
-
-CREATE TRIGGER log_action_insert
-AFTER INSERT
-ON log_action
-FOR EACH ROW
-EXECUTE PROCEDURE log_action_insert_trigger_fnc();
-
-ALTER TABLE log_action
-ENABLE TRIGGER ALL;

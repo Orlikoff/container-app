@@ -29,3 +29,75 @@ WHERE EXISTS(
 	AND ship.mass > <mass>
 )
 ORDER BY id
+
+// Creating trigger for log_action
+CREATE OR REPLACE FUNCTION log_action_insert_trigger_fnc()
+  RETURNS trigger AS
+$$
+BEGIN
+
+UPDATE journal
+SET last_update_datetime = NEW.datetime
+WHERE id = NEW.journal_id;
+
+RETURN NEW;
+END;
+$$
+LANGUAGE 'plpgsql';
+
+CREATE TRIGGER log_action_insert
+AFTER INSERT
+ON log_action
+FOR EACH ROW
+EXECUTE PROCEDURE log_action_insert_trigger_fnc();
+
+ALTER TABLE log_action
+ENABLE TRIGGER ALL;
+
+// move shipment to container <shipment_id> to <new_container_id>
+CREATE OR REPLACE PROCEDURE moveShipment(shipment_id INT, new_container_id INT)
+LANGUAGE 'plpgsql'
+AS
+$$
+BEGIN
+
+UPDATE shipment
+SET container_id = new_container_id
+WHERE id = shipment_id;
+
+END;
+$$;
+
+// change user with id <user_id> password to <new_password>
+CREATE OR REPLACE PROCEDURE changePassword(user_id INT, new_password CHARACTER VARYING(30))
+LANGUAGE 'plpgsql'
+AS
+$$
+BEGIN
+
+UPDATE user_data
+SET user_password = new_password
+WHERE id = user_id;
+
+// log new worker's action
+CREATE OR REPLACE PROCEDURE logNewAction(worker_id INT, action_desc CHARACTER VARYING(100))
+LANGUAGE 'plpgsql'
+AS
+$$
+DECLARE
+
+worker_journal_id INT;
+
+BEGIN
+
+SELECT (id) FROM journal
+WHERE marine_worker_id = worker_id
+INTO worker_journal_id;
+
+
+INSERT INTO log_action(journal_id, edited_id, action_description, datetime)
+VALUES (worker_journal_id, worker_id, action_desc, NOW());
+
+END;
+$$;
+
